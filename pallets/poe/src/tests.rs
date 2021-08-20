@@ -7,7 +7,7 @@ use super::*;
 fn create_claim_works() {
 	new_test_ext().execute_with(|| {
 		let claim = vec![0, 1];
-		
+
 		assert_ok!(PoeModule::create_claim(Origin::signed(1), claim.clone()));
 		assert_eq!(
 			Proofs::<Test>::get(&claim),
@@ -33,6 +33,7 @@ fn create_claim_failed_when_claim_already_exists() {
 fn create_claim_failed_when_claim_over_limit() {
 	new_test_ext().execute_with(|| {
 		let claim = vec![0, 1, 0, 1, 0, 1, 0, 1, 0];
+		// 最大长度为8
 		let _ = PoeModule::create_claim(Origin::signed(1), claim.clone());
 
 		assert_noop!(
