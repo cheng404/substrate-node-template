@@ -4,7 +4,7 @@ description = 'Substrate FRAME pallet template for defining custom runtime logic
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'
-name = 'pallet-poe'
+name = 'pallet-kitties'
 publish = false
 repository = 'https://github.com/cheng404/substrate-node-template/'
 version = '3.0.0-monthly-2021-08'
@@ -16,7 +16,7 @@ targets = ['x86_64-unknown-linux-gnu']
 [dev-dependencies.serde]
 version = '1.0.126'
 
-[dev-dependencies.sp-core]
+[dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
@@ -28,17 +28,29 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
 version = '4.0.0-dev'
 
-[dev-dependencies.sp-io]
+[dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
 version = '4.0.0-dev'
 
-[dev-dependencies.sp-runtime]
+[dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
 version = '4.0.0-dev'
+
+[dev-dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'monthly-2021-08'
+version = '4.0.0-dev'
+
+[dev-dependencies.frame-support-test]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'monthly-2021-08'
+version = '3.0.0'
 
 [dependencies.codec]
 default-features = false
@@ -70,9 +82,11 @@ default = ['std']
 runtime-benchmarks = ['frame-benchmarking']
 std = [
     'codec/std',
+    'sp-core/std',
+    'sp-std/std',
+	'sp-io/std',
     'frame-support/std',
     'frame-system/std',
     'frame-benchmarking/std',
-    'sp-std/std',
 ]
 try-runtime = ['frame-support/try-runtime']

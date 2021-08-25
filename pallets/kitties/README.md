@@ -1,5 +1,8 @@
+### Build
 `cargo build --release`
 
+### Run
 `./target/release/node-template --dev --tmp`
 
-`cargo -- test -p pallet-poe`
+### Test
+`cargo -- test -p pallet-kitties`
