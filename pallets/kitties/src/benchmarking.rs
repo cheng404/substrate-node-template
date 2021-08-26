@@ -3,7 +3,7 @@
 use super::*;
 
 #[allow(unused)]
-use crate::Pallet as PoeModule;
+use crate::Pallet as KittiesTemplate;
 use frame_benchmarking::{benchmarks, impl_benchmark_test_suite, whitelisted_caller};
 use frame_system::RawOrigin;
 
@@ -17,4 +17,4 @@ use frame_system::RawOrigin;
 // 	}
 // }
 //
-impl_benchmark_test_suite!(PoeModule, crate::mock::new_test_ext(), crate::mock::Test);
+impl_benchmark_test_suite!(KittiesTemplate, crate::mock::new_test_ext(), crate::mock::Test);

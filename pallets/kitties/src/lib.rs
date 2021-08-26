@@ -59,8 +59,8 @@ pub mod pallet {
 	pub type KittiesCount<T: Config> = StorageValue<_, u64, ValueQuery>;
 
 	// 创建kitty默认费用
-	pub struct KittyReveseFeeDefault;
-	impl Get<u64> for KittyReveseFeeDefault {
+	pub struct KittyCreateFeeDefault;
+	impl Get<u64> for KittyCreateFeeDefault {
 		fn get() -> u64 {
 			5
 		}
@@ -68,8 +68,8 @@ pub mod pallet {
 
 	/// 创建kitty需要花费的金额
 	#[pallet::storage]
-	#[pallet::getter(fn kitty_revese_fee)]
-	pub type KittyReveseFee<T: Config> = StorageValue<_, u64, ValueQuery, KittyReveseFeeDefault>;
+	#[pallet::getter(fn kitty_create_fee)]
+	pub type KittyCreateFee<T: Config> = StorageValue<_, u64, ValueQuery, KittyCreateFeeDefault>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn kitties)]
@@ -101,7 +101,8 @@ pub mod pallet {
 		SameParentIndex,
 		InvalidKittyIndex,
 		InvalidKittyPrice,
-		TranferError,
+		KittyNotForSale,
+		PayFeeError,
 	}
 
 	#[pallet::call]
@@ -110,13 +111,14 @@ pub mod pallet {
 		pub fn create(origin: OriginFor<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			let kitty_id = Self::new_kitty_id();
+			let kitty_id = Self::new_kitty_id()?;
 			// let _s: u64 = TryInto::<u64>::try_into(kitty_id).ok().unwrap();
 			let dna = Self::random_value(&who);
-			// let fee = <u64 as TryInto<BalanceOf<T>>>::try_into(KittyReveseFee::<T>::get()).ok().unwrap();
-			let fee = KittyReveseFee::<T>::get().try_into().ok().unwrap();
+			// let fee = <u64 as TryInto<BalanceOf<T>>>::try_into(KittyCreateFee::<T>::get()).ok().unwrap();
+			let fee = KittyCreateFee::<T>::get().try_into().ok().unwrap();
 			let transfer_res = T::Currency::transfer(&who, &Self::account_id(), fee, KeepAlive);
-			// ensure!(transfer_res.is_ok(), transfer_res);
+			ensure!(transfer_res.is_ok(), Error::<T>::PayFeeError);
+
 			debug_assert!(transfer_res.is_ok());
 			Kitties::<T>::insert(kitty_id, Some(Kitty(dna)));
 			Owner::<T>::insert(kitty_id, Some(who.clone()));
@@ -130,10 +132,11 @@ pub mod pallet {
 		#[pallet::weight(0)]
 		pub fn transfer(origin: OriginFor<T>, new_owner: T::AccountId, kitty_id: T::KittyIndex) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			ensure!(
-				Some(who.clone()) == Owner::<T>::get(kitty_id),
-				Error::<T>::NotKittyOwner
-			);
+
+			let _owner = Owner::<T>::get(kitty_id);
+			ensure!(_owner.is_some(), Error::<T>::KittyNotExist);
+			ensure!(Some(who.clone()) == _owner, Error::<T>::NotKittyOwner);
+
 			Owner::<T>::insert(kitty_id, Some(new_owner.clone()));
 
 			Self::deposit_event(Event::<T>::KittyTransfer(who, new_owner, kitty_id));
@@ -156,7 +159,7 @@ pub mod pallet {
 			let kitty1 = Self::kitties(kitty_id_1).ok_or(Error::<T>::InvalidKittyIndex)?;
 			let kitty2 = Self::kitties(kitty_id_2).ok_or(Error::<T>::InvalidKittyIndex)?;
 
-			let kitty_id = Self::new_kitty_id();
+			let kitty_id = Self::new_kitty_id()?;
 
 			let dna_1 = kitty1.0;
 			let dna_2 = kitty2.0;
@@ -187,7 +190,7 @@ pub mod pallet {
 			let old_owner = Owner::<T>::get(kitty_id).ok_or(Error::<T>::NotKittyOwner)?;
 
 			let transfer_res = T::Currency::transfer(&who, &old_owner, price, KeepAlive);
-			ensure!(transfer_res.is_ok(), Error::<T>::TranferError);
+			ensure!(transfer_res.is_ok(), Error::<T>::PayFeeError);
 
 			Owner::<T>::insert(kitty_id, Some(who.clone()));
 			PriceOf::<T>::remove(kitty_id);
@@ -218,10 +221,10 @@ pub mod pallet {
 			T::PalletId::get().into_account()
 		}
 
-		pub fn new_kitty_id() -> T::KittyIndex {
+		pub fn new_kitty_id() -> Result<T::KittyIndex, Error<T>> {
 			let kitty_count = Self::kitties_count();
-			let res = kitty_count.checked_add(1).ok_or(Error::<T>::KittiesCountOverflow).unwrap();
-			res.try_into().ok().unwrap()
+			let res = kitty_count.checked_add(1).ok_or(Error::<T>::KittiesCountOverflow)?;
+			Ok(res.try_into().ok().unwrap())
 		}
 
 		pub fn random_value(sender: &T::AccountId) -> [u8; 16] {
