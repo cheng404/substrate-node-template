@@ -100,7 +100,7 @@ pub mod pallet {
 		NotKittyOwner,
 		SameParentIndex,
 		InvalidKittyIndex,
-		InvalidKittyPrice,
+		// InvalidKittyPrice,
 		KittyNotForSale,
 		PayFeeError,
 	}
@@ -181,10 +181,10 @@ pub mod pallet {
 		#[pallet::weight(0)]
 		pub fn buy_kitty(origin: OriginFor<T>, kitty_id: T::KittyIndex) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			let price = PriceOf::<T>::get(kitty_id).ok_or(Error::<T>::InvalidKittyPrice)?;
+			let price = PriceOf::<T>::get(kitty_id).ok_or(Error::<T>::KittyNotForSale)?;
 			ensure!(
 				!price.is_zero(),
-				Error::<T>::InvalidKittyPrice
+				Error::<T>::KittyNotForSale
 			);
 
 			let old_owner = Owner::<T>::get(kitty_id).ok_or(Error::<T>::NotKittyOwner)?;
@@ -193,6 +193,7 @@ pub mod pallet {
 			ensure!(transfer_res.is_ok(), Error::<T>::PayFeeError);
 
 			Owner::<T>::insert(kitty_id, Some(who.clone()));
+			// 将kitty标记为不出售
 			PriceOf::<T>::remove(kitty_id);
 
 			Self::deposit_event(Event::<T>::KittyTransfer(old_owner, who.clone(), kitty_id));
@@ -200,6 +201,7 @@ pub mod pallet {
 			Ok(())
 		}
 
+		/// 设置kitty是否出售，price为0时不出售
 		#[pallet::weight(0)]
 		pub fn for_sale(origin: OriginFor<T>, kitty_id: T::KittyIndex, price: BalanceOf<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
@@ -207,8 +209,13 @@ pub mod pallet {
 				Some(who.clone()) == Owner::<T>::get(kitty_id),
 				Error::<T>::NotKittyOwner
 			);
-			ensure!(!price.is_zero(), Error::<T>::InvalidKittyPrice);
-			PriceOf::<T>::insert(kitty_id, Some(price));
+			// ensure!(!price.is_zero(), Error::<T>::InvalidKittyPrice);
+			if price.is_zero() {
+				PriceOf::<T>::remove(kitty_id);
+			}
+			else{
+				PriceOf::<T>::insert(kitty_id, Some(price))
+			}
 
 			Self::deposit_event(Event::<T>::KittyForSale(who, kitty_id, price));
 
@@ -235,7 +242,5 @@ pub mod pallet {
 			);
 			pay_load.using_encoded(blake2_128)
 		}
-
-
 	}
 }
