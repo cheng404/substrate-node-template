@@ -21,7 +21,7 @@ fn create_kitty_works() {
 #[test]
 fn create_kitty_fails_when_exceeds_balance() {
 	new_test_ext().execute_with(|| {
-		Balances::set_balance(Origin::root(), 1, 0, 0).ok();
+		assert_ok!(Balances::set_balance(Origin::root(), 1, 0, 0));
 		assert_noop!(
 			KittiesModule::create(Origin::signed(1)),
 			Error::<Test>::PayFeeError
@@ -162,7 +162,7 @@ fn breed_kitty_fails_when_kitty_count_overflow() {
 fn for_sale_works() {
 	new_test_ext().execute_with(|| {
 		let who = 1;
-		KittiesModule::create(Origin::signed(who));
+		assert_ok!(KittiesModule::create(Origin::signed(who)));
 		let price = 10;
 		assert_ok!(KittiesModule::for_sale(Origin::signed(who), 1, price));
 		assert_eq!(PriceOf::<Test>::get(1), Some(10));
@@ -176,7 +176,7 @@ fn for_sale_works() {
 fn for_sale_fails_when_not_owner_or_not_exists() {
 	new_test_ext().execute_with(|| {
 		let (owner, other) = (1, 2);
-		KittiesModule::create(Origin::signed(owner));
+		assert_ok!(KittiesModule::create(Origin::signed(owner)));
 		let price = 10;
 
 		assert_noop!(
@@ -195,9 +195,9 @@ fn for_sale_fails_when_not_owner_or_not_exists() {
 fn buy_kitty_works() {
 	new_test_ext().execute_with(|| {
 		let (buyer, seller) = (1, 2);
-		KittiesModule::create(Origin::signed(seller));
+		assert_ok!(KittiesModule::create(Origin::signed(seller)));
 		let price = 10;
-		KittiesModule::for_sale(Origin::signed(seller), 1, price);
+		assert_ok!(KittiesModule::for_sale(Origin::signed(seller), 1, price));
 		let seller_balance_before = Balances::free_balance(&seller);
 
 		assert_ok!(KittiesModule::buy_kitty(Origin::signed(buyer), 1));
@@ -211,7 +211,7 @@ fn buy_kitty_works() {
 fn buy_kitty_fails_when_not_for_sale_or_not_exists() {
 	new_test_ext().execute_with(|| {
 		let (buyer, seller) = (1, 2);
-		KittiesModule::create(Origin::signed(seller));
+		assert_ok!(KittiesModule::create(Origin::signed(seller)));
 
 		assert_noop!(
 			KittiesModule::buy_kitty(Origin::signed(buyer), 1),
@@ -228,10 +228,10 @@ fn buy_kitty_fails_when_not_for_sale_or_not_exists() {
 fn buy_kitty_fails_when_exceed_balance(){
 	new_test_ext().execute_with(|| {
 		let (buyer, seller) = (1, 2);
-		KittiesModule::create(Origin::signed(seller));
+		assert_ok!(KittiesModule::create(Origin::signed(seller)));
 		let price = 10;
-		KittiesModule::for_sale(Origin::signed(seller), 1, price);
-		Balances::set_balance(Origin::root(), buyer, price - 1, 0).ok();
+		assert_ok!(KittiesModule::for_sale(Origin::signed(seller), 1, price));
+		assert_ok!(Balances::set_balance(Origin::root(), buyer, price - 1, 0));
 
 		assert_noop!(
 			KittiesModule::buy_kitty(Origin::signed(buyer), 1),
