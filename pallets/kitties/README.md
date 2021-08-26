@@ -5,4 +5,4 @@
 `./target/release/node-template --dev --tmp`
 
 ### Test
-`cargo -- test -p pallet-kitties`
+`cargo test -p pallet-kitties`
