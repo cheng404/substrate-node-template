@@ -166,6 +166,12 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
 version = '4.0.0-dev'
 
+[dependencies.sp-keystore]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'monthly-2021-08'
+version = '0.10.0-dev'
+
 [dependencies.substrate-frame-rpc-system]
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'

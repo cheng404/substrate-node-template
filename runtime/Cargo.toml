@@ -27,6 +27,11 @@ default-features = false
 path = '../pallets/kitties'
 version = '3.0.0-monthly-2021-08'
 
+[dependencies.pallet-ocw]
+default-features = false
+path = '../pallets/ocw'
+version = '3.0.0-monthly-2021-08'
+
 [build-dependencies.substrate-wasm-builder]
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
@@ -222,6 +227,7 @@ std = [
 #    'pallet-template/std',
     'pallet-poe/std',
     'pallet-kitties/std',
+	'pallet-ocw/std',
     'pallet-timestamp/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
     'pallet-transaction-payment/std',

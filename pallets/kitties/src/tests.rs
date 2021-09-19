@@ -107,7 +107,7 @@ fn breed_kitty_works() {
 }
 
 #[test]
-fn breed_kitty_fails_when_not_owner() {
+fn breed_kitty_fails_when_not_owner_or_not_exists() {
 	new_test_ext().execute_with(|| {
 		let (owner, other) = (1, 2);
 		assert_ok!(KittiesModule::create(Origin::signed(owner)));

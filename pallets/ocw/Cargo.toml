@@ -4,7 +4,7 @@ description = 'Substrate FRAME pallet template for defining custom runtime logic
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'
-name = 'pallet-kitties'
+name = 'pallet-ocw'
 publish = false
 repository = 'https://github.com/cheng404/substrate-node-template/'
 version = '3.0.0-monthly-2021-08'
@@ -13,8 +13,19 @@ readme = 'README.md'
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
 
-[dev-dependencies.serde]
+[dependencies.log]
+default-features = false
+version = '0.4.14'
+
+[dependencies.serde]
+default-features = false
+features = ['derive']
 version = '1.0.126'
+
+[dependencies.serde_json]
+default-features = false
+features = ['alloc']
+version = '1.0.67'
 
 [dependencies.sp-core]
 default-features = false
@@ -35,6 +46,12 @@ tag = 'monthly-2021-08'
 version = '4.0.0-dev'
 
 [dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'monthly-2021-08'
+version = '4.0.0-dev'
+
+[dependencies.sp-arithmetic]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-08'
@@ -85,6 +102,8 @@ std = [
     'sp-core/std',
     'sp-std/std',
 	'sp-io/std',
+	'sp-arithmetic/std',
+	'log/std',
     'frame-support/std',
     'frame-system/std',
 	'frame-benchmarking/std',

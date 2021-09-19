@@ -11,6 +11,7 @@ use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sp_consensus::SlotData;
 use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
+use sp_keystore;
 use std::{sync::Arc, time::Duration};
 
 // Our native executor instance.
@@ -68,6 +69,15 @@ pub fn new_partial(
 			telemetry.as_ref().map(|(_, telemetry)| telemetry.handle()),
 		)?;
 	let client = Arc::new(client);
+
+	let keystore = keystore_container.sync_keystore();
+	if config.offchain_worker.enabled {
+		sp_keystore::SyncCryptoStore::sr25519_generate_new(
+			&*keystore,
+			node_template_runtime::pallet_ocw::KEY_TYPE,
+			Some("//Alice"),
+		).expect("Creating key with account Alice should succeed.");
+	}
 
 	let telemetry = telemetry.map(|(worker, telemetry)| {
 		task_manager.spawn_handle().spawn("telemetry", worker.run());

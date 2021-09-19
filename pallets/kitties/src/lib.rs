@@ -115,11 +115,10 @@ pub mod pallet {
 			// let _s: u64 = TryInto::<u64>::try_into(kitty_id).ok().unwrap();
 			let dna = Self::random_value(&who);
 			// let fee = <u64 as TryInto<BalanceOf<T>>>::try_into(KittyCreateFee::<T>::get()).ok().unwrap();
-			let fee = KittyCreateFee::<T>::get().try_into().ok().unwrap();
-			let transfer_res = T::Currency::transfer(&who, &Self::account_id(), fee, KeepAlive);
-			ensure!(transfer_res.is_ok(), Error::<T>::PayFeeError);
+			let fee: BalanceOf<T> = KittyCreateFee::<T>::get().try_into().ok().unwrap();
+			// let transfer_res = T::Currency::transfer(&who, &Self::account_id(), fee, KeepAlive);
+			// ensure!(transfer_res.is_ok(), Error::<T>::PayFeeError);
 
-			debug_assert!(transfer_res.is_ok());
 			Kitties::<T>::insert(kitty_id, Some(Kitty(dna)));
 			Owner::<T>::insert(kitty_id, Some(who.clone()));
 			KittiesCount::<T>::mutate(|t| {*t = *t + 1});
